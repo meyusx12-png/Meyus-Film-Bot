@@ -7,10 +7,32 @@ TOKEN = os.getenv("BOT_TOKEN")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "🎬 Merhaba! Ben Meyus Film Bot.\n\n"
-        "Şimdilik test sürümündeyim.\n"
-        "/film komutu yakında aktif olacak."
-    )
+        async def film(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    data = get_random_movie()
+
+    if data.get("Response") == "False":
+        await update.message.reply_text("Film bulunamadı.")
+        return
+
+    text = f"""
+🎬 Meyus Film
+
+🍿 {data['Title']}
+
+⭐ IMDb: {data['imdbRating']}
+📅 {data['Year']}
+🎭 {data['Genre']}
+⏱️ {data['Runtime']}
+
+📝 {data['Plot']}
+
+🎥 İyi seyirler!
+"""
+
+    if data["Poster"] != "N/A":
+        await update.message.reply_photo(photo=data["Poster"], caption=text)
+    else:
+        await update.message.reply_text(text)
 
 async def film(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
