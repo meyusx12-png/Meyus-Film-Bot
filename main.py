@@ -1,4 +1,5 @@
 import os
+from omdb import get_random_movie
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
