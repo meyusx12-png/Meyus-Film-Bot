@@ -1,0 +1,57 @@
+import os
+from telegram import Update
+from telegram.ext import Application, CommandHandler, ContextTypes
+from omdb import get_random_movie
+from deep_translator import GoogleTranslator
+
+TOKEN = os.getenv("BOT_TOKEN")
+
+def translate_tr(text):
+    if not text or text == "N/A":
+        return text
+    try:
+        return GoogleTranslator(source="en", target="tr").translate(text)
+    except Exception:
+        return text  # çeviri başarısız olursa orijinalini göster
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "🎬 Merhaba! Ben Meyus Film Bot.\n\n"
+        "/film yazarak film önerisi alabilirsin."
+    )
+
+async def film(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    data = get_random_movie()
+
+    if data.get("Response") == "False":
+        await update.message.reply_text("Film bulunamadı.")
+        return
+
+    genre_tr = translate_tr(data["Genre"])
+    plot_tr = translate_tr(data["Plot"])
+
+    text = (
+        f"🎬 {data['Title']}\n\n"
+        f"⭐ IMDb: {data['imdbRating']}\n"
+        f"📅 Yıl: {data['Year']}\n"
+        f"🎭 Tür: {genre_tr}\n"
+        f"⏱️ Süre: {data['Runtime']}\n\n"
+        f"📝 {plot_tr}"
+    )
+
+    if data["Poster"] != "N/A":
+        await update.message.reply_photo(photo=data["Poster"], caption=text)
+    else:
+        await update.message.reply_text(text)
+
+def main():
+    app = Application.builder().token(TOKEN).build()
+
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("film", film))
+
+    print("Meyus Film Bot çalışıyor...")
+    app.run_polling()
+
+if __name__ == "__main__":
+    main()
