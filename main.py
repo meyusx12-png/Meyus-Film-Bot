@@ -1,7 +1,7 @@
 import os
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
-from omdb import get_random_movie
+from tmdb import get_random_movie
 
 TOKEN = os.getenv("BOT_TOKEN")
 
